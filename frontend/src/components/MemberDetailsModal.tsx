@@ -4,6 +4,7 @@ import type React from "react";
 
 import { useState } from "react";
 import { Member } from "../types";
+import { BACK_URL, DEPARTMENTS, SECTIONS } from "../constants";
 
 type MemberDetailsModalProps = {
   member: Member;
@@ -11,23 +12,6 @@ type MemberDetailsModalProps = {
   onDelete: () => void;
   onUpdate: (member: Member) => void;
 };
-
-// Predefined options for dropdowns
-const SECTIONS = [
-  "Engineering",
-  "Marketing",
-  "Sales",
-  "Support",
-  "Finance",
-  "HR",
-];
-const DEPARTMENTS = [
-  "Product",
-  "Development",
-  "Design",
-  "Operations",
-  "Management",
-];
 
 export default function MemberDetailsModal({
   member,
@@ -38,6 +22,8 @@ export default function MemberDetailsModal({
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState<Member>(member);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [apiError, setApiError] = useState<string | null>(null);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
@@ -45,7 +31,6 @@ export default function MemberDetailsModal({
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
 
-    // Clear error when field is edited
     if (errors[name]) {
       setErrors((prev) => {
         const newErrors = { ...prev };
@@ -53,6 +38,8 @@ export default function MemberDetailsModal({
         return newErrors;
       });
     }
+
+    if (apiError) setApiError(null);
   };
 
   const validate = () => {
@@ -72,11 +59,39 @@ export default function MemberDetailsModal({
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setApiError(null);
 
-    if (validate()) {
-      onUpdate(formData);
+    if (!validate()) return;
+
+    setIsSubmitting(true);
+    try {
+      const response = await fetch(`${BACK_URL}/members/${formData.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        throw new Error(
+          errorData?.message || "Failed to update member details",
+        );
+      }
+
+      const updatedMember = await response.json();
+      onUpdate(updatedMember);
+      setIsEditing(false);
+    } catch (error) {
+      console.error("Error updating member:", error);
+      setApiError(
+        error instanceof Error ? error.message : "Failed to update member",
+      );
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -120,6 +135,12 @@ export default function MemberDetailsModal({
               <h3 className="text-lg font-medium leading-6 text-gray-900 dark:text-white">
                 {isEditing ? "Edit Member" : "Member Details"}
               </h3>
+
+              {apiError && (
+                <div className="mt-2 p-3 bg-red-50 text-red-700 rounded border border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800">
+                  {apiError}
+                </div>
+              )}
 
               {isEditing ? (
                 <form onSubmit={handleSubmit} className="mt-6 space-y-4">
@@ -234,14 +255,16 @@ export default function MemberDetailsModal({
                   <div className="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
                     <button
                       type="submit"
-                      className="inline-flex justify-center w-full px-5 py-3 text-base font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:ml-3 sm:w-auto sm:text-sm"
+                      disabled={isSubmitting}
+                      className="inline-flex justify-center w-full px-5 py-3 text-base font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:ml-3 sm:w-auto sm:text-sm disabled:bg-indigo-300 disabled:cursor-not-allowed"
                     >
-                      Save Changes
+                      {isSubmitting ? "Saving..." : "Save Changes"}
                     </button>
                     <button
                       type="button"
                       onClick={() => setIsEditing(false)}
-                      className="inline-flex justify-center w-full px-5 py-3 mt-3 text-base font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:w-auto sm:text-sm dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600"
+                      disabled={isSubmitting}
+                      className="inline-flex justify-center w-full px-5 py-3 mt-3 text-base font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:w-auto sm:text-sm dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       Cancel
                     </button>

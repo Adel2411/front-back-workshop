@@ -1,24 +1,55 @@
+import { useState } from "react";
+import { BACK_URL } from "../constants";
+
 type DeleteConfirmModalProps = {
+  memberId: string;
   memberName: string;
   onCancel: () => void;
   onConfirm: () => void;
 };
 
 export default function DeleteConfirmModal({
+  memberId,
   memberName,
   onCancel,
   onConfirm,
 }: DeleteConfirmModalProps) {
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleDelete = async () => {
+    setIsDeleting(true);
+    setError(null);
+
+    try {
+      const response = await fetch(`${BACK_URL}/members/${memberId}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to delete: ${response.status}`);
+      }
+
+      onConfirm();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to delete member");
+      console.error("Delete error:", err);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto">
       <div className="flex items-center justify-center min-h-screen p-4">
-        {/* Background overlay */}
         <div
           className="fixed inset-0 transition-opacity bg-gray-500/30 backdrop-blur-sm"
           onClick={onCancel}
         ></div>
 
-        {/* Modal panel */}
         <div className="relative z-10 w-full max-w-lg px-6 pt-6 pb-6 overflow-hidden text-left bg-white rounded-xl shadow-xl dark:bg-gray-800">
           <div className="sm:flex sm:items-start">
             <div className="flex items-center justify-center flex-shrink-0 w-12 h-12 mx-auto bg-red-100 rounded-full sm:mx-0 sm:h-10 sm:w-10">
@@ -49,21 +80,24 @@ export default function DeleteConfirmModal({
                   </span>{" "}
                   ? This action cannot be undone.
                 </p>
+                {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
               </div>
             </div>
           </div>
           <div className="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
             <button
               type="button"
-              onClick={onConfirm}
-              className="inline-flex justify-center w-full px-5 py-3 text-base font-medium text-white bg-red-600 border border-transparent rounded-md shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm"
+              onClick={handleDelete}
+              disabled={isDeleting}
+              className="inline-flex justify-center w-full px-5 py-3 text-base font-medium text-white bg-red-600 border border-transparent rounded-md shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50"
             >
-              Delete
+              {isDeleting ? "Deleting..." : "Delete"}
             </button>
             <button
               type="button"
               onClick={onCancel}
-              className="inline-flex justify-center w-full px-5 py-3 mt-3 text-base font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:w-auto sm:text-sm dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600"
+              disabled={isDeleting}
+              className="inline-flex justify-center w-full px-5 py-3 mt-3 text-base font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:w-auto sm:text-sm dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600 disabled:opacity-50"
             >
               Cancel
             </button>

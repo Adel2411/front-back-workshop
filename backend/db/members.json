@@ -5,6 +5,32 @@
     "email": "becharwalid9@gmail.com",
     "discordId": "w_75",
     "section": "IT",
-    "departement": "DEV"
+    "departement": "DEV",
+    "department": "Marketing"
+  },
+  {
+    "id": "1746110013549",
+    "name": "adel",
+    "email": "hadjarabadel.2411@gmail.com",
+    "discordId": "adelhb",
+    "section": "Sales",
+    "departement": "DEV",
+    "department": "Development"
+  },
+  {
+    "id": "1746113941139",
+    "discordId": "fdasfsa",
+    "name": "Adilo123",
+    "email": "hadjarabadel.2411@gmail.com",
+    "section": "Game Dev",
+    "department": "Multimedia"
+  },
+  {
+    "id": "1746114321572",
+    "discordId": "w_75",
+    "name": "test",
+    "email": "eagles@gmail.com",
+    "section": "Game Dev",
+    "department": "Operations"
   }
 ]

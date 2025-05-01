@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Member } from "./types";
 import DeleteConfirmModal from "./components/DeleteConfirmModal";
 import MemberDetailsModal from "./components/MemberDetailsModal";
 import RegisterModal from "./components/RegisterModal";
 import MemberCard from "./components/MemberCard";
 import "./App.css";
+import { BACK_URL } from "./constants";
 
 export default function Home() {
   const [members, setMembers] = useState<Member[]>([]);
@@ -12,6 +13,22 @@ export default function Home() {
   const [showRegisterModal, setShowRegisterModal] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+  useEffect(() => {
+    fetchMembers();
+  }, []);
+
+  const fetchMembers = async () => {
+    try {
+      const response = await fetch(`${BACK_URL}/members`);
+      if (response.ok) {
+        const data = await response.json();
+        setMembers(data);
+      }
+    } catch (error) {
+      console.error("Failed to fetch members:", error);
+    }
+  };
 
   const addMember = (member: Member) => {
     setMembers([...members, member]);
@@ -151,6 +168,7 @@ export default function Home() {
           memberName={currentMember.name}
           onCancel={() => setShowDeleteModal(false)}
           onConfirm={handleDelete}
+          memberId={currentMember.id}
         />
       )}
     </div>

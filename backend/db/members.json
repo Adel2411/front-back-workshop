@@ -16,21 +16,5 @@
     "section": "Sales",
     "departement": "DEV",
     "department": "Development"
-  },
-  {
-    "id": "1746113941139",
-    "discordId": "fdasfsa",
-    "name": "Adilo123",
-    "email": "hadjarabadel.2411@gmail.com",
-    "section": "Game Dev",
-    "department": "Multimedia"
-  },
-  {
-    "id": "1746114321572",
-    "discordId": "w_75",
-    "name": "test",
-    "email": "eagles@gmail.com",
-    "section": "Game Dev",
-    "department": "Operations"
   }
 ]

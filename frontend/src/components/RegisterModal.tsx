@@ -72,7 +72,7 @@ export default function RegisterModal({
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData), // We send formData without ID, server will assign one
+        body: JSON.stringify(formData),
       });
 
       if (!response.ok) {
@@ -82,7 +82,7 @@ export default function RegisterModal({
 
       const result = await response.json();
       console.log("Member registered successfully:", result);
-      onSubmit(result); // Pass the server-returned member with proper ID
+      onSubmit(result);
     } catch (error) {
       console.error("Error registering member:", error);
       setApiError(

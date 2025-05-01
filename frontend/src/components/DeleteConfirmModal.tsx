@@ -2,7 +2,7 @@ import { useState } from "react";
 import { BACK_URL } from "../constants";
 
 type DeleteConfirmModalProps = {
-  memberId: string;
+  memberId: string; // Added member ID prop
   memberName: string;
   onCancel: () => void;
   onConfirm: () => void;

@@ -20,11 +20,12 @@ export default function Home() {
 
   const fetchMembers = async () => {
     try {
-      const response = await fetch(`${BACK_URL}/members`, {
-        //   headers: {
-        //     "ngrok-skip-browser-warning": "1",
-        //   },
-      });
+      const response = await fetch(`${BACK_URL}/members`);
+      // , {
+      //   headers: {
+      //     "ngrok-skip-browser-warning": "1",
+      //   },
+      // });
       if (response.ok) {
         const data = await response.json();
         setMembers(data);
